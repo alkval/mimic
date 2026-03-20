@@ -39,10 +39,18 @@ export const recordingOptions: Audio.RecordingOptions = {
 type PracticeScreenProps = {
   targetLanguage?: LanguageOption;
   onChangeLanguage?: (language: LanguageOption) => void;
+  pinnedLanguageCodes?: string[];
+  onTogglePinnedLanguage?: (languageCode: string) => void;
   showLanguagePicker?: boolean;
 };
 
-export default function PracticeScreen({ targetLanguage: controlledLanguage, onChangeLanguage, showLanguagePicker = true }: PracticeScreenProps) {
+export default function PracticeScreen({
+  targetLanguage: controlledLanguage,
+  onChangeLanguage,
+  pinnedLanguageCodes,
+  onTogglePinnedLanguage,
+  showLanguagePicker = true,
+}: PracticeScreenProps) {
   const [internalTargetLanguage, setInternalTargetLanguage] = useState(getLanguageByCode('ko') || FEATURED_LANGUAGES[3]);
   const targetLanguage = controlledLanguage ?? internalTargetLanguage;
   const setTargetLanguage = onChangeLanguage ?? setInternalTargetLanguage;
@@ -210,6 +218,8 @@ export default function PracticeScreen({ targetLanguage: controlledLanguage, onC
             <LanguagePicker
               selected={targetLanguage}
               onSelect={setTargetLanguage}
+              pinnedLanguageCodes={pinnedLanguageCodes}
+              onTogglePinnedLanguage={onTogglePinnedLanguage}
               label=""
               placeholder="Type to search language"
             />

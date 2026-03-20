@@ -15,6 +15,8 @@ function makeId() {
 type HubertChatScreenProps = {
   targetLanguage?: LanguageOption;
   onChangeLanguage?: (language: LanguageOption) => void;
+  pinnedLanguageCodes?: string[];
+  onTogglePinnedLanguage?: (languageCode: string) => void;
   showLanguagePicker?: boolean;
   onModelLoaded?: () => void;
 };
@@ -22,6 +24,8 @@ type HubertChatScreenProps = {
 export default function HubertChatScreen({
   targetLanguage: controlledLanguage,
   onChangeLanguage,
+  pinnedLanguageCodes,
+  onTogglePinnedLanguage,
   showLanguagePicker = true,
   onModelLoaded,
 }: HubertChatScreenProps) {
@@ -85,6 +89,8 @@ export default function HubertChatScreen({
           <LanguagePicker
             selected={targetLanguage}
             onSelect={setTargetLanguage}
+            pinnedLanguageCodes={pinnedLanguageCodes}
+            onTogglePinnedLanguage={onTogglePinnedLanguage}
             label=""
             placeholder="Type to search language"
           />

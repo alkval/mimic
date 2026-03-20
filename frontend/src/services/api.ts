@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { CharacterScore, PronunciationResult } from '../types';
 
-const baseURL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const baseURL = (process.env.EXPO_PUBLIC_API_BASE_URL || '').trim().replace(/\/$/, '');
 
 const client = axios.create({
   baseURL,
@@ -33,7 +33,10 @@ function toFriendlyError(error: unknown): Error {
   }
 
   if (error.message.toLowerCase().includes('network error')) {
-    return new Error('Network error. Check EXPO_PUBLIC_API_BASE_URL and backend availability.');
+    const endpoint = baseURL || '<unset>';
+    return new Error(
+      `Network error calling ${endpoint}. Confirm backend reachability from phone and allow cleartext HTTP for Android when using http:// URLs.`,
+    );
   }
 
   return new Error(error.message || 'Request failed');
@@ -61,12 +64,16 @@ function parseAlignResponse(data: unknown): PronunciationResult {
   if (data && typeof data === 'object') {
     const obj = data as {
       scores?: CharacterScore[];
+      transcript?: string;
       debug?: { transcript?: string };
     };
     if (Array.isArray(obj.scores)) {
       return {
         scores: obj.scores,
-        transcript: typeof obj.debug?.transcript === 'string' ? obj.debug.transcript : '',
+        transcript:
+          typeof obj.debug?.transcript === 'string'
+            ? obj.debug.transcript
+            : (typeof obj.transcript === 'string' ? obj.transcript : ''),
       };
     }
   }

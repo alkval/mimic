@@ -606,7 +606,7 @@ async def align(
                     "gates_applied": bool(use_gates),
                 },
             }
-        return zeros
+        return {"scores": zeros, "transcript": ""}
 
     lang = language.strip().lower() or None
 
@@ -665,7 +665,7 @@ async def align(
             len(scores),
         )
 
-    return scores
+    return {"scores": scores, "transcript": info.get("transcript", "")}
 
 
 @app.post("/tutor_chat", response_model=TutorChatResponse)

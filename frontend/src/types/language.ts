@@ -117,6 +117,7 @@ const ALL_LANGUAGES: LanguageOption[] = [
 ];
 
 const FEATURED_LANGUAGE_CODES = ['no', 'es', 'en', 'ko', 'zh'];
+export const DEFAULT_PINNED_LANGUAGE_CODES = FEATURED_LANGUAGE_CODES;
 
 export const LANGUAGE_OPTIONS = ALL_LANGUAGES;
 
@@ -128,10 +129,26 @@ export const FEATURED_LANGUAGES = FEATURED_LANGUAGE_CODES.map((code) => getLangu
   (lang): lang is LanguageOption => Boolean(lang),
 );
 
-export function fuzzyLanguageSearch(query: string): LanguageOption[] {
+function pinnedLanguages(pinnedCodes: string[]): LanguageOption[] {
+  const seen = new Set<string>();
+  const resolved: LanguageOption[] = [];
+
+  for (const code of pinnedCodes) {
+    const language = getLanguageByCode(code);
+    if (!language || seen.has(language.code)) {
+      continue;
+    }
+    seen.add(language.code);
+    resolved.push(language);
+  }
+
+  return resolved;
+}
+
+export function fuzzyLanguageSearch(query: string, pinnedCodes: string[] = DEFAULT_PINNED_LANGUAGE_CODES): LanguageOption[] {
   const normalized = query.trim().toLowerCase();
   if (!normalized) {
-    return FEATURED_LANGUAGES;
+    return pinnedLanguages(pinnedCodes);
   }
 
   const starts: LanguageOption[] = [];
@@ -146,5 +163,15 @@ export function fuzzyLanguageSearch(query: string): LanguageOption[] {
     }
   }
 
-  return [...starts, ...includes].slice(0, 20);
+  const pinnedSet = new Set(pinnedCodes);
+  return [...starts, ...includes]
+    .sort((a, b) => {
+      const aPinned = pinnedSet.has(a.code);
+      const bPinned = pinnedSet.has(b.code);
+      if (aPinned !== bPinned) {
+        return aPinned ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name);
+    })
+    .slice(0, 20);
 }
