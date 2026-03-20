@@ -146,6 +146,57 @@ export async function sendTutorMessage(message: string, targetLanguage: string):
   }
 }
 
+export async function transcribeSpeech(audioUri: string, languageCode = ''): Promise<string> {
+  ensureApiConfigured();
+
+  const meta = inferAudioMeta(audioUri);
+  const form = new FormData();
+  form.append('target_text', 'mimic');
+  form.append('debug', '1');
+  form.append('language', languageCode);
+  form.append('audio_file', {
+    uri: audioUri,
+    name: meta.name,
+    type: meta.type,
+  } as never);
+
+  const parseTranscript = (data: unknown): string => {
+    if (data && typeof data === 'object') {
+      const obj = data as { debug?: { transcript?: string; whisper_transcript?: string } };
+      const transcript = obj.debug?.transcript ?? obj.debug?.whisper_transcript ?? '';
+      if (typeof transcript === 'string') {
+        return transcript;
+      }
+    }
+    return '';
+  };
+
+  try {
+    const response = await client.post('/align', form, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return parseTranscript(response.data);
+  } catch (firstError) {
+    if (axios.isAxiosError(firstError) && (firstError.code === 'ECONNABORTED' || !firstError.response)) {
+      await sleep(800);
+      try {
+        const response = await client.post('/align', form, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        return parseTranscript(response.data);
+      } catch (retryError) {
+        throw toFriendlyError(retryError);
+      }
+    }
+
+    throw toFriendlyError(firstError);
+  }
+}
+
 export async function unloadTutorModel(): Promise<void> {
   ensureApiConfigured();
 

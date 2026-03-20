@@ -4,6 +4,7 @@ import { Modal, Pressable, Text, View } from 'react-native';
 import { useState } from 'react';
 import PracticeScreen from '../screens/PracticeScreen';
 import HubertChatScreen from '../screens/HubertChatScreen';
+import VoiceModeScreen from '../screens/VoiceModeScreen';
 import { unloadTutorModel } from '../services/api';
 import HeaderLanguageMenu from '../components/HeaderLanguageMenu';
 import { DEFAULT_PINNED_LANGUAGE_CODES, FEATURED_LANGUAGES, getLanguageByCode } from '../types/language';
@@ -11,8 +12,7 @@ import { DEFAULT_PINNED_LANGUAGE_CODES, FEATURED_LANGUAGES, getLanguageByCode } 
 const Tab = createBottomTabNavigator();
 
 export default function RootTabs() {
-  const [practiceLanguage, setPracticeLanguage] = useState(getLanguageByCode('ko') || FEATURED_LANGUAGES[3]);
-  const [hubertLanguage, setHubertLanguage] = useState(getLanguageByCode('ko') || FEATURED_LANGUAGES[3]);
+  const [globalLanguage, setGlobalLanguage] = useState(getLanguageByCode('ko') || FEATURED_LANGUAGES[3]);
   const [pinnedLanguageCodes, setPinnedLanguageCodes] = useState(DEFAULT_PINNED_LANGUAGE_CODES);
   const [hubertUnloaded, setHubertUnloaded] = useState(false);
   const [showPracticeInfo, setShowPracticeInfo] = useState(false);
@@ -33,7 +33,7 @@ export default function RootTabs() {
           headerTitleStyle: { color: '#243526', fontWeight: '800', fontSize: 20 },
           headerLeft: undefined,
           headerRight:
-            route.name === 'Hubert'
+            route.name === 'Chat' || route.name === 'Voice'
               ? () => (
                   <Pressable
                     accessibilityRole="button"
@@ -66,13 +66,13 @@ export default function RootTabs() {
                   )
               : undefined,
           headerTitle:
-            route.name === 'Hubert'
+            route.name === 'Chat'
               ? () => (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Text style={{ color: '#243526', fontWeight: '800', fontSize: 20 }}>Hubert</Text>
+                    <Text style={{ color: '#243526', fontWeight: '800', fontSize: 20 }}>Chat</Text>
                     <HeaderLanguageMenu
-                      selected={hubertLanguage}
-                      onSelect={setHubertLanguage}
+                      selected={globalLanguage}
+                      onSelect={setGlobalLanguage}
                       pinnedLanguageCodes={pinnedLanguageCodes}
                       onTogglePinnedLanguage={onTogglePinnedLanguage}
                     />
@@ -83,8 +83,20 @@ export default function RootTabs() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ color: '#243526', fontWeight: '800', fontSize: 20 }}>Practice</Text>
                       <HeaderLanguageMenu
-                        selected={practiceLanguage}
-                        onSelect={setPracticeLanguage}
+                        selected={globalLanguage}
+                        onSelect={setGlobalLanguage}
+                        pinnedLanguageCodes={pinnedLanguageCodes}
+                        onTogglePinnedLanguage={onTogglePinnedLanguage}
+                      />
+                    </View>
+                  )
+              : route.name === 'Voice'
+                ? () => (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <Text style={{ color: '#243526', fontWeight: '800', fontSize: 20 }}>Voice</Text>
+                      <HeaderLanguageMenu
+                        selected={globalLanguage}
+                        onSelect={setGlobalLanguage}
                         pinnedLanguageCodes={pinnedLanguageCodes}
                         onTogglePinnedLanguage={onTogglePinnedLanguage}
                       />
@@ -103,7 +115,12 @@ export default function RootTabs() {
           tabBarActiveTintColor: '#58cc02',
           tabBarInactiveTintColor: '#95ad8d',
           tabBarIcon: ({ color, size }) => {
-            const iconName = route.name === 'Practice' ? 'school' : 'forum';
+            const iconName =
+              route.name === 'Practice'
+                ? 'school'
+                : route.name === 'Chat'
+                  ? 'forum'
+                  : 'mic';
             return <MaterialIcons name={iconName} size={size} color={color} />;
           },
         })}
@@ -111,23 +128,30 @@ export default function RootTabs() {
         <Tab.Screen name="Practice">
           {() => (
             <PracticeScreen
-              targetLanguage={practiceLanguage}
-              onChangeLanguage={setPracticeLanguage}
+              targetLanguage={globalLanguage}
+              onChangeLanguage={setGlobalLanguage}
               pinnedLanguageCodes={pinnedLanguageCodes}
               onTogglePinnedLanguage={onTogglePinnedLanguage}
               showLanguagePicker={false}
             />
           )}
         </Tab.Screen>
-        <Tab.Screen name="Hubert">
+        <Tab.Screen name="Chat">
           {() => (
             <HubertChatScreen
-              targetLanguage={hubertLanguage}
-              onChangeLanguage={setHubertLanguage}
+              targetLanguage={globalLanguage}
+              onChangeLanguage={setGlobalLanguage}
               pinnedLanguageCodes={pinnedLanguageCodes}
               onTogglePinnedLanguage={onTogglePinnedLanguage}
               showLanguagePicker={false}
               onModelLoaded={() => setHubertUnloaded(false)}
+            />
+          )}
+        </Tab.Screen>
+        <Tab.Screen name="Voice">
+          {() => (
+            <VoiceModeScreen
+              targetLanguage={globalLanguage}
             />
           )}
         </Tab.Screen>

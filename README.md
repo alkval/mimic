@@ -13,7 +13,7 @@ Mimic is an open-source language learning app with a friendly tutor persona name
 
 ```mermaid
 flowchart LR
-    A["Expo Frontend<br/>Practice and Hubert tabs"] -->|"HTTPS over Tailscale"| B["FastAPI Backend"]
+  A["Expo Frontend<br/>Practice, Chat, Voice tabs"] -->|"HTTPS over Tailscale"| B["FastAPI Backend"]
     B --> C["OpenAI Whisper<br/>small (multilingual)"]
     B --> D["Ollama<br/>hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0"]
     E["User Microphone WAV<br/>16kHz mono, 16-bit PCM"] --> A
@@ -25,9 +25,10 @@ flowchart LR
 - `backend/requirements.txt`: backend dependencies
 - `backend/test_main.py`: backend tests for WAV validation and endpoints
 - `frontend/App.tsx`: app bootstrap
-- `frontend/src/navigation/RootTabs.tsx`: tab navigation (Practice and Hubert)
+- `frontend/src/navigation/RootTabs.tsx`: tab navigation (Practice, Chat, Voice)
 - `frontend/src/screens/PracticeScreen.tsx`: mimic pronunciation flow
-- `frontend/src/screens/HubertChatScreen.tsx`: Hubert chat flow
+- `frontend/src/screens/HubertChatScreen.tsx`: chat flow with Hubert
+- `frontend/src/screens/VoiceModeScreen.tsx`: voice-to-voice interaction flow
 - `frontend/src/components`: modular UI components
 - `frontend/src/services/api.ts`: backend API client
 
@@ -118,10 +119,13 @@ curl http://localhost:8000/health
 - Response:
 
 ```json
-[
-  { "character": "s", "score": 0.9 },
-  { "character": "a", "score": 0.82 }
-]
+{
+  "scores": [
+    { "character": "s", "score": 0.9 },
+    { "character": "a", "score": 0.82 }
+  ],
+  "transcript": "sample transcript"
+}
 ```
 
 ### POST /tutor_chat
@@ -151,15 +155,17 @@ npm install
 npm run start
 ```
 
-The app includes two bottom tabs:
+The app includes three bottom tabs:
 
 - Practice: target word input, listen playback, record and upload, per-character score colors
-- Hubert: bubble chat with assistant speech playback
+- Chat: bubble chat with assistant speech playback
+- Voice: tap-to-talk flow (record -> transcribe -> LLM reply -> spoken response)
 
 Target language behavior:
 
-- Hubert chat: selected language is sent to backend and injected into Hubert's prompt context.
+- Global language selection is shared across Practice, Chat, and Voice.
 - Practice: selected language is used for local text-to-speech voice selection when pressing Listen.
+- Chat and Voice: selected language is sent to backend for Hubert responses.
 - Alignment (`POST /align`) uses Whisper transcription + character matching.
   - Energy-based reliability gating is applied by default.
   - `language` can be provided by frontend to improve short-phrase accuracy.
@@ -169,12 +175,12 @@ Language picker behavior:
 - Starts with featured options: Norwegian, Spanish, English, Korean, Chinese.
 - Includes an extended language list with flag icons.
 - Supports fuzzy search (example: typing `fren` narrows to French).
-- In both Practice and Hubert screens, the UI uses keyboard-avoiding layouts so controls remain visible while typing.
+- In both Practice and Chat screens, the UI uses keyboard-avoiding layouts so controls remain visible while typing.
 
 Hubert model lifecycle:
 
 - `POST /tutor_chat` is sent with `keep_alive=5m` by default so the model unloads automatically after 5 minutes of inactivity.
-- A manual unload action is available in the Hubert chat UI (`Unload model`) and maps to `POST /tutor_unload`.
+- A manual unload action is available in Chat and Voice (`Unload model`) and maps to `POST /tutor_unload`.
 - Keep-alive can be configured with `OLLAMA_KEEP_ALIVE` in `backend/.env`.
 
 Chat input behavior:

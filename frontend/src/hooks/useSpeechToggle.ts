@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Speech from 'expo-speech';
 
+function sanitizeForSpeech(text: string): string {
+  return text
+    .replace(/\p{Extended_Pictographic}/gu, ' ')
+    .replace(/[\uFE0E\uFE0F]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function useSpeechToggle() {
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const unmountedRef = useRef(false);
@@ -31,6 +39,14 @@ export function useSpeechToggle() {
         return;
       }
 
+      const speechText = sanitizeForSpeech(text);
+      if (!speechText) {
+        if (!unmountedRef.current) {
+          setActiveKey(null);
+        }
+        return;
+      }
+
       if (!unmountedRef.current) {
         setActiveKey(key);
       }
@@ -43,7 +59,7 @@ export function useSpeechToggle() {
       } catch {
       }
 
-      Speech.speak(text, {
+      Speech.speak(speechText, {
         ...(language ? { language } : {}),
         onDone: () => clearIfActive(key),
         onStopped: () => clearIfActive(key),
