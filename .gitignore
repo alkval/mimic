@@ -1,0 +1,44 @@
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+env/
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.coverage
+backend/htmlcov/
+backend/*.egg-info/
+backend/.python-version
+weights/
+*.wav
+*.mp3
+
+# --- Node / Expo / Frontend ---
+node_modules/
+.expo/
+.eas/
+dist/
+web-build/
+frontend/android/
+frontend/ios/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+frontend/.expo-shared/
+frontend/.eslintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- IDE & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
