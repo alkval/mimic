@@ -121,6 +121,8 @@ def _build_user_prompt(message: str, target_language: str) -> str:
         f"Target language: {target_language}\n"
         f"Learner message: {message}\n"
         "Reply as Hubert in a concise, learner-friendly way. "
+        f"Respond only in {target_language}. "
+        "Do not append an English translation unless the learner explicitly asks for one. "
         "Prefer examples in the target language."
     )
 
