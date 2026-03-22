@@ -1,13 +1,17 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PracticeScreen from '../screens/PracticeScreen';
 import HubertChatScreen from '../screens/HubertChatScreen';
 import VoiceModeScreen from '../screens/VoiceModeScreen';
 import { unloadTutorModel } from '../services/api';
 import HeaderLanguageMenu from '../components/HeaderLanguageMenu';
 import { DEFAULT_PINNED_LANGUAGE_CODES, FEATURED_LANGUAGES, getLanguageByCode } from '../types/language';
+import {
+  loadPinnedLanguageCodes,
+  savePinnedLanguageCodes,
+} from '../services/voicePreference';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,6 +20,24 @@ export default function RootTabs() {
   const [pinnedLanguageCodes, setPinnedLanguageCodes] = useState(DEFAULT_PINNED_LANGUAGE_CODES);
   const [hubertUnloaded, setHubertUnloaded] = useState(false);
   const [showPracticeInfo, setShowPracticeInfo] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    void (async () => {
+      const storedPinned = await loadPinnedLanguageCodes();
+      if (storedPinned && storedPinned.length > 0) {
+        setPinnedLanguageCodes(storedPinned);
+      }
+      setReady(true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    void savePinnedLanguageCodes(pinnedLanguageCodes);
+  }, [pinnedLanguageCodes, ready]);
 
   const onTogglePinnedLanguage = (languageCode: string) => {
     setPinnedLanguageCodes((previous) =>
@@ -24,6 +46,10 @@ export default function RootTabs() {
         : [...previous, languageCode],
     );
   };
+
+  if (!ready) {
+    return null;
+  }
 
   return (
     <>

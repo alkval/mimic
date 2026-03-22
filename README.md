@@ -175,7 +175,13 @@ Language picker behavior:
 - Starts with featured options: Norwegian, Spanish, English, Korean, Chinese.
 - Includes an extended language list with flag icons.
 - Supports fuzzy search (example: typing `fren` narrows to French).
+- Pinned languages are persisted in app storage and restored on next launch (including device restarts).
 - In both Practice and Chat screens, the UI uses keyboard-avoiding layouts so controls remain visible while typing.
+
+Hubert voice behavior:
+
+- Speech playback uses voice engines provided by the device OS (Android or iOS).
+- The app does not include an in-app male/female narrator selector; available voice timbre depends on what the OS exposes for the selected language.
 
 Hubert model lifecycle:
 

@@ -17,7 +17,6 @@
     },
     "android": {
       "package": "com.alkval.mimic",
-      "usesCleartextTraffic": true,
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/mimic.png",
@@ -39,7 +38,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "eas": {

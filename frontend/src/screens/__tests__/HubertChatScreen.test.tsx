@@ -1,15 +1,47 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { Audio } from 'expo-av';
 import HubertChatScreen from '../HubertChatScreen';
 import { sendTutorMessage } from '../../services/api';
 
 jest.mock('../../services/api', () => ({
   sendTutorMessage: jest.fn(),
+  transcribeSpeech: jest.fn(),
   unloadTutorModel: jest.fn(),
+}));
+
+jest.mock('expo-av', () => ({
+  Audio: {
+    requestPermissionsAsync: jest.fn(),
+    setAudioModeAsync: jest.fn(),
+    Recording: {
+      createAsync: jest.fn(),
+    },
+    AndroidOutputFormat: {
+      MPEG_4: 1,
+    },
+    AndroidAudioEncoder: {
+      AAC: 1,
+    },
+    IOSAudioQuality: {
+      MAX: 0,
+    },
+    IOSOutputFormat: {
+      LINEARPCM: 0,
+    },
+  },
 }));
 
 describe('HubertChatScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (Audio.requestPermissionsAsync as jest.Mock).mockResolvedValue({ granted: true });
+    (Audio.setAudioModeAsync as jest.Mock).mockResolvedValue(undefined);
+    (Audio.Recording.createAsync as jest.Mock).mockResolvedValue({
+      recording: {
+        stopAndUnloadAsync: jest.fn(),
+        getURI: jest.fn().mockReturnValue('file:///attempt.wav'),
+      },
+    });
   });
 
   it('sends message with selected target language and renders assistant reply', async () => {
