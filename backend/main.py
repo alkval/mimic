@@ -105,7 +105,7 @@ def _load_settings() -> Settings:
     return Settings(
         cors_origins=cors_origins,
         ollama_host=os.getenv("OLLAMA_HOST", "http://localhost:11434"),
-        ollama_model=os.getenv("OLLAMA_MODEL", "hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0"),
+        ollama_model=os.getenv("OLLAMA_MODEL", "tiny-aya:latest"),
         ollama_keep_alive=os.getenv("OLLAMA_KEEP_ALIVE", "5m"),
         align_log_metrics=_as_bool("ALIGN_LOG_METRICS", True),
         align_min_duration_sec=_as_float("ALIGN_MIN_DURATION_SEC", 0.2),

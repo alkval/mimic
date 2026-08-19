@@ -7,7 +7,7 @@ Mimic is an open-source language learning app with a friendly tutor persona name
 - Monorepo structure:
   - `frontend`: React Native Expo + TypeScript + NativeWind
   - `backend`: FastAPI + Python 3.10+
-- Ollama model: `hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0`
+- Ollama model: `tiny-aya:latest`
 - Recommended GPU memory: at least 4GB VRAM
 - Networking model: frontend and backend communicate over private Tailscale addresses
 
@@ -15,7 +15,7 @@ Mimic is an open-source language learning app with a friendly tutor persona name
 flowchart LR
   A["Expo Frontend<br/>Practice, Chat, Voice tabs"] -->|"HTTPS over Tailscale"| B["FastAPI Backend"]
     B --> C["OpenAI Whisper<br/>small (multilingual)"]
-    B --> D["Ollama<br/>hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0"]
+    B --> D["Ollama<br/>tiny-aya:latest"]
     E["User Microphone WAV<br/>16kHz mono, 16-bit PCM"] --> A
 ```
 
@@ -43,7 +43,7 @@ No secrets, keys, or fixed private IPs should be hardcoded.
 2. Fill values:
    - `EXPO_PUBLIC_API_BASE_URL` should point to your backend on Tailscale, for example `http://100.x.y.z:8000`
    - `OLLAMA_HOST` defaults to `http://localhost:11434`
-  - `OLLAMA_MODEL` defaults to `hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0`
+  - `OLLAMA_MODEL` defaults to `tiny-aya:latest`
   - `WHISPER_MODEL` defaults to `small`
   - `WHISPER_LANGUAGE` defaults to empty (auto-detect)
 
@@ -79,6 +79,7 @@ If you need CUDA-specific PyTorch wheels, use the wheel index that matches your 
 
 ```bash
 ollama pull hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0
+ollama cp hf.co/CohereLabs/tiny-aya-water-GGUF:Q8_0 tiny-aya:latest
 ollama serve
 ```
 
